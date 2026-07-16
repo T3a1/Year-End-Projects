@@ -1,0 +1,16 @@
+PROJECT_NAME           = "zappy_server"
+INPUT                  =    ./Include/Execution
+                            ./Include/Logger
+                            ./Include/Parser
+                            ./Include/Server
+                            ./Include/Utils
+                            ./Include/World
+
+GENERATE_HTML          = NO
+GENERATE_LATEX         = YES
+
+OPTIMIZE_OUTPUT_FOR_C  = YES
+
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
