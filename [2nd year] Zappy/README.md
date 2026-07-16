@@ -844,3 +844,16 @@ Players can reach level 8 simultaneously during the same incantation call (since
 Higher frequency makes the game faster but also makes AIs starve faster. The frequency can be changed at runtime by the GUI via the `sst` command.
 
 Typical values: `freq=10` (casual), `freq=100` (fast debugging), `freq=1` (very slow, step-through debugging).
+
+### 6 Credits
+---
+#### Network
+David Caron<br>
+Léandre Fouret
+
+#### UI / UX
+Eliott Duchêne<br>
+Arthur Vignes
+
+#### AI
+Arthur Piron
