@@ -1,16 +1,234 @@
-# Zappy — Full Project Documentation
+# Zappy
 
-> Epitech 2026 — NET (C server) · GUI (C++/Raylib) · AI (Python)
+> A full-stack distributed multiplayer simulation platform for teaching concurrent systems, network protocols, and collaborative AI strategies.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+![Language](https://img.shields.io/badge/Languages-C%20%7C%20C%2B%2B%20%7C%20Python-blue)
+![Build](https://img.shields.io/badge/Build-CMake%20%7C%20Make-green)
+![Platform](https://img.shields.io/badge/Platform-Linux-orange)
 
 ---
 
-## Table of contents
+## 🎮 What is Zappy?
 
-1. [Architecture overview](#1-architecture-overview)
-2. [Protocol & command reference](#2-protocol--command-reference)
-3. [AI strategy guide](#3-ai-strategy-guide)
-4. [Developer onboarding guide](#4-developer-onboarding-guide)
-5. [Game rules & world mechanics](#5-game-rules--world-mechanics)
+Zappy is a **complete distributed system** where multiple AI-controlled players (trantorian creatures) compete in teams to gather resources, level up through collaborative rituals, and reach maximum level to win. 
+
+- **One authoritative server** (C, event-driven) manages game state and rules
+- **Multiple AI clients** (Python) connected over TCP, each controlling one player
+- **One spectator GUI** (C++/Raylib) renders the world in real-time 3D
+
+All components communicate exclusively through **well-defined text protocols**, making it ideal for:
+- Teaching network programming and distributed systems
+- Practicing AI algorithm design (leader election, pathfinding, coordination)
+- Understanding event-driven server architecture
+- Implementing collaborative team strategies
+
+---
+
+## ✨ Key Features
+
+| Feature | Details |
+|---------|---------|
+| 🌍 **Shared World** | Toroidal map with food, minerals, and spawning eggs |
+| 🤖 **AI Agents** | Python-based intelligent agents with perception, movement, and communication |
+| 📊 **Real-Time Visualization** | 3D GUI showing all players, resources, and broadcasts live |
+| 🏆 **Team Gameplay** | Multiple teams competing; win by unanimous team incantation at max level |
+| 📡 **Clean Protocol** | Text-based TCP protocol: easy to implement clients in any language |
+| ⚙️ **Server Logic** | Event-driven polling server; no threads, no race conditions |
+| 🧠 **Advanced AI** | Automatic leader election, resource coordination, pathfinding |
+| 🎵 **Rich UI** | Tile inspection, player tracking, chat/broadcast history, settings, animations |
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technologies |
+|-------|--------------|
+| **Game Server** | C, POSIX sockets, `poll(2)` event loop, no external deps |
+| **GUI Client** | C++17, Raylib, CMake, RAII patterns, component architecture |
+| **AI Agents** | Python 3, stdlib only (no external dependencies) |
+| **Build** | Make, CMake |
+| **Testing** | Custom C test framework |
+| **Documentation** | Markdown, Doxygen-ready |
+
+---
+
+## 📁 Project Structure
+
+```
+Zappy/
+├── NET/           Game server (C) - authoritative game state & networking
+├── GUI/           Spectator client (C++/Raylib) - 3D visualization
+├── AI/            Player client (Python) - intelligent agent
+├── docs/          Technical documentation
+└── Makefile       Root build orchestrator
+```
+
+Each component runs independently and communicates via TCP on a shared port.
+
+For detailed architecture, see [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Linux** with a graphical session (X11 or Wayland)
+- **Build tools**: `make`, `cmake ≥ 3.10`, C/C++ compiler
+- **Raylib** (graphics library) - install via:
+  ```bash
+  # Ubuntu/Debian
+  sudo apt-get install libraylib-dev
+
+  # Or build from source (recommended)
+  git clone https://github.com/raysan5/raylib.git
+  cd raylib && mkdir build && cd build
+  cmake .. -DBUILD_SHARED_LIBS=OFF && make && sudo make install
+  ```
+- **Python 3.7+** (for AI clients)
+
+### Build Everything
+
+```bash
+cd Zappy
+make all
+```
+
+This produces three executable artifacts:
+- `zappy_server` - The game server
+- `zappy_gui` - The graphical client
+- `zappy_ai` - The AI player script
+
+### Run a Game
+
+**Terminal 1 — Start the server:**
+```bash
+./zappy_server -p 4242 -x 30 -y 30 -n team1 team2 -c 4 -f 100
+```
+
+**Terminal 2 — Start the GUI:**
+```bash
+./zappy_gui -p 4242 -h localhost
+```
+
+**Terminal 3+ — Start AI players (one per terminal):**
+```bash
+./zappy_ai -p 4242 -n team1 -h localhost
+./zappy_ai -p 4242 -n team2 -h localhost
+# ... repeat for more players
+```
+
+Watch the simulation unfold in the GUI! Players will move, gather resources, and attempt incantations.
+
+For detailed setup and troubleshooting, see [docs/GETTING_STARTED.md](./docs/GETTING_STARTED.md).
+
+---
+
+## 📚 Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [docs/GETTING_STARTED.md](./docs/GETTING_STARTED.md) | Installation, build, and first-run guide |
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | System design, data flows, component responsibilities |
+| [docs/API_REFERENCE.md](./docs/API_REFERENCE.md) | Complete protocol specification (AI, GUI, server commands) |
+| [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) | Production setup, environment configuration, troubleshooting |
+| [CHANGELOG.md](./CHANGELOG.md) | Version history and release notes |
+| [CONTRIBUTORS.md](./CONTRIBUTORS.md) | Team credits and acknowledgments |
+
+**Component-specific docs:**
+- [GUI Architecture](./GUI/Docs/02-Architecture.md) - Internal GUI design patterns
+- [GUI C++ Quality](./GUI/Docs/03-Cpp-Design-And-Extensibility.md) - Best practices applied
+- [AI Strategy](./AI/Docs/Zappy_AI.md) - AI algorithm details and state machine
+
+---
+
+## 📖 Game Rules & Mechanics
+
+### Objective
+Players spawn in teams. Each team must coordinate to:
+1. Gather scattered resources (food, minerals)
+2. Level up individually through resource collection and ritual
+3. Reach maximum level (8) through a team incantation
+4. Be the first team with all players at level 8 to win
+
+### Core Mechanics
+- **Perception**: Each player can see 8 tiles in their facing direction
+- **Movement**: Forward, left turn, right turn, each costs time
+- **Inventory**: Carry up to 10 resource units
+- **Incantation**: Multi-player ritual requiring specific resources and coordination
+- **Broadcasting**: Send team-wide messages with 1-hop radius
+- **Forking**: Create new players via eggs on the map
+
+---
+
+## 🏗 Architecture Highlights
+
+**Server (NET)**
+- Event-driven polling loop: ~4,284 lines of C
+- 12+ AI commands, 18+ GUI query commands
+- No threads; deterministic and predictable
+- Tile-based world with toroidal wrapping
+
+**GUI (C++)**
+- Real-time 3D rendering using Raylib
+- Component-based UI system
+- ~8,196 lines following SOLID principles
+- Extensible animation & model caching
+
+**AI (Python)**
+- State machine with roles: level-up, leader, follower, survivor
+- Automatic leader election by lowest ID
+- Intelligent resource gathering & pathfinding
+- Team coordination via broadcast protocol
+
+For in-depth design, see [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+
+---
+
+## 📋 Project Stats
+
+- **Total Code**: ~13,976 lines
+- **Server Tests**: 6 comprehensive test suites
+- **Assets**: 97 files (3D models, textures, fonts, audio)
+- **Animations**: 10 character sequences, 8 level variants
+- **Build System**: Unified Makefile + CMake for modular builds
+
+---
+
+## 🐛 Known Limitations
+
+- GUI requires X11/Wayland display; SSH X-forwarding may be slow
+- AI clients are compute-lite; optimized for clarity over speed
+- Map size limited by memory (tested up to 100x100)
+- Network protocol is plaintext (fine for LAN, use VPN for untrusted networks)
+
+---
+
+## 📞 Contact & Credits
+
+**Project Context**
+- Epitech School Educational Project (2024-2026)
+- Semester 4: Systems & Networking module
+
+**Get Involved**
+- Found a bug? [Open an issue](../../issues)
+- Want to contribute? See [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md)
+- Have questions? Check existing documentation or open a discussion
+
+**Attriredits & Attribution
+
+**Project Context**
+- Epitech School Educational Project (2024-2026)
+- Semester 4: Systems & Networking module
+
+**Development Team**
+- See [CONTRIBUTORS.md](./CONTRIBUTORS.md) for detailed credits by component
+---
+
+# Additional Technical Documentation
+
+> The following sections provide deep technical reference. For recruiter-friendly overview, see the sections above.
 
 ---
 
@@ -844,16 +1062,3 @@ Players can reach level 8 simultaneously during the same incantation call (since
 Higher frequency makes the game faster but also makes AIs starve faster. The frequency can be changed at runtime by the GUI via the `sst` command.
 
 Typical values: `freq=10` (casual), `freq=100` (fast debugging), `freq=1` (very slow, step-through debugging).
-
-### 6 Credits
----
-#### Network
-David Caron<br>
-Léandre Fouret
-
-#### UI / UX
-Eliott Duchêne<br>
-Arthur Vignes
-
-#### AI
-Arthur Piron
